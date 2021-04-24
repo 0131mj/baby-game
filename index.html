@@ -1,0 +1,170 @@
+<html>
+<meta charset="UTF-8">
+<head>
+  <style>
+    html {
+      background-color: #eee;
+    }
+
+    body {
+      padding: 1rem;
+      background-color: #fff;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    #table {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      width: 30vw;
+      height: 30vw;
+      font-size: 25vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: transparent;
+      padding: 2rem;
+      margin: 1rem;
+      border-radius: 1rem;
+      transition: all 0.2s;
+      user-select: none;
+      border: none;
+    }
+
+    .btn.selected {
+      color: unset;
+      background-color: #eee !important;
+    }
+
+    #refresh-btn {
+      font-size: 5vh;
+      margin: 2rem auto;
+      display: block;
+      border-radius: 10vh;
+      padding: 2vh 3vh;
+      background-color: black;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .hidden {
+      visibility: hidden !important;
+    }
+
+  </style>
+</head>
+<body>
+<div id="table"></div>
+<button id="refresh-btn" class="hidden">🔄 다른 동물</button>
+
+<audio id="touch-sound" src="sounds/touch.wav"></audio>
+<audio id="success-sound" src="sounds/success.wav"></audio>
+</body>
+<script>
+
+  let seq = 0;
+
+  const table = document.getElementById("table");
+  const animals = {
+    dog: {
+      icon: '🐶',
+      color: '#c92a2a',
+    },
+    fox: {
+      icon: '🦊',
+      color: '#a61e4d',
+    },
+    lion: {
+      icon: '🦁',
+      color: '#862e9c'
+    },
+    tiger: {
+      icon: '🐯',
+      color: '#5f3dc4'
+    },
+    bear: {
+      icon: '🐻',
+      color: '#364fc7'
+    },
+    pig: {
+      icon: '🐷',
+      color: '#1864ab'
+    },
+    rabbit: {
+      icon: '🐰',
+      color: '#0b7285'
+    },
+    chicken: {
+      icon: '🐔',
+      color: '#087f5b',
+    },
+    cat: {
+      icon: '😼',
+      color: '#2b8a3e',
+    },
+  };
+
+  const TOTAL_CNT = 4;
+
+  const refreshBtn = document.getElementById("refresh-btn");
+
+  const touchSnd = document.getElementById("touch-sound");
+  const successSnd = document.getElementById("success-sound");
+
+  const playTouchSound = () => {
+    touchSnd.currentTime = 0;
+    touchSnd.play();
+  };
+
+  const playSuccessSound = () => {
+    successSnd .currentTime = 0;
+    successSnd .play();
+  };
+
+
+  const refresh = () => {
+    seq++;
+    refreshBtn.classList.add('hidden');
+    const keys = Object.keys(animals);
+    const index = seq % keys.length;
+    const animal = keys[index];
+    const {icon, color} = animals[animal];
+    const data = new Array(TOTAL_CNT).fill(icon);
+    const button = (el) => `<div class="btn" style="background-color: ${color}">${el}</div>`;
+    const buttons = data.map(el => button(el)).join('');
+    table.innerHTML = buttons;
+    const btnEls = document.querySelectorAll('.btn');
+    for (const btn of btnEls) {
+      btn.addEventListener('touchstart', (e) => {
+        e.currentTarget.classList.add('selected');
+        playTouchSound();
+        const openedCards = document.querySelectorAll('.selected');
+
+        if (openedCards.length === TOTAL_CNT) {
+          setTimeout(() => {
+            refreshBtn.classList.remove('hidden');
+            playSuccessSound();
+          }, 500)
+        }
+      })
+    }
+  }
+
+  window.onload = refresh();
+
+
+  refreshBtn.addEventListener('touchstart', function (e) {
+    e.stopPropagation();
+    refresh();
+  })
+</script>
+</html>
